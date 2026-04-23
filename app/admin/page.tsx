@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ProjectEditor } from '@/components/admin/ProjectEditor';
 import { SiteConfigEditor } from '@/components/admin/SiteConfigEditor';
 import { systemStore } from '@/store/useSystemStore';
@@ -15,7 +15,6 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<AdminTab>('PROJECTS');
-  const hasMounted = useRef(false);
   const router = useRouter();
 
   // 1. Subscribe to runtime state
@@ -25,13 +24,8 @@ export default function AdminPage() {
     });
   }, []);
 
-  // 2. Guard: only redirect after mount to avoid race with store hydration
+  // 2. Guard: redirect if admin module is not active
   useEffect(() => {
-    hasMounted.current = true;
-  }, []);
-
-  useEffect(() => {
-    if (!hasMounted.current) return;
     if (!adminState.adminModuleActive) {
       router.push('/');
     }
