@@ -26,6 +26,7 @@ interface SyncContextType {
   lastHandshake: LastHandshake | null;
   logs: SyncLog[];
   error: string | null;
+  isAdmin: boolean;
   triggerSync: () => Promise<void>;
 }
 
@@ -38,6 +39,14 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
   const [lastSyncTimestamp, setLastSyncTimestamp] = useState<number>(0);
   const [lastHandshake, setLastHandshake] = useState<LastHandshake | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Subscribe to admin state changes
+  useEffect(() => {
+    const update = () => setIsAdmin(systemStore.getState().adminAuthenticated);
+    update();
+    return systemStore.subscribe(update);
+  }, []);
 
   // Load last handshake from Firestore on mount — only when admin is authenticated
   useEffect(() => {
@@ -59,6 +68,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   const refreshHandshake = useCallback(async () => {
+    if (!systemStore.getState().adminAuthenticated) return;
     try {
       const r = await fetch('/api/admin/sync');
       if (!r.ok) return;
@@ -80,6 +90,12 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const triggerSync = useCallback(async () => {
+    // Guard: admin only
+    if (!systemStore.getState().adminAuthenticated) {
+      addLog('ERROR', 'ACCESS_DENIED: ADMIN PRIVILEGES REQUIRED');
+      return;
+    }
+
     // Guard: already syncing
     if (status === 'SYNCING') return;
 
@@ -132,7 +148,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
   }, [status, lastSyncTimestamp, addLog, refreshHandshake]);
 
   return (
-    <SyncContext.Provider value={{ status, lastSyncTime, lastHandshake, logs, error, triggerSync }}>
+    <SyncContext.Provider value={{ status, lastSyncTime, lastHandshake, logs, error, isAdmin, triggerSync }}>
       {children}
     </SyncContext.Provider>
   );

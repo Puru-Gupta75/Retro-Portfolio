@@ -4,7 +4,7 @@ import React from 'react';
 import { useSync } from '@/context/SyncContext';
 
 export function SystemPanel() {
-  const { status, lastSyncTime, lastHandshake, logs, error, triggerSync } = useSync();
+  const { status, lastSyncTime, lastHandshake, logs, error, isAdmin, triggerSync } = useSync();
   const lastLog = logs[logs.length - 1];
 
   return (
@@ -58,10 +58,12 @@ export function SystemPanel() {
 
           <button 
             onClick={() => triggerSync()}
-            disabled={status === 'SYNCING'}
+            disabled={status === 'SYNCING' || !isAdmin}
             className={`
               relative px-4 py-1.5 overflow-hidden transition-all duration-200 border
-              ${status === 'SYNCING' 
+              ${!isAdmin
+                ? 'opacity-20 cursor-not-allowed border-amber-900/20 text-amber-900/40'
+                : status === 'SYNCING' 
                 ? 'opacity-40 cursor-not-allowed border-amber-900/20 text-amber-900/40' 
                 : 'border-amber-500/30 text-amber-500 hover:border-amber-400 hover:text-amber-400 hover:bg-amber-500/5 hover:shadow-[0_0_15px_rgba(251,191,36,0.1)] active:scale-95'
               }
