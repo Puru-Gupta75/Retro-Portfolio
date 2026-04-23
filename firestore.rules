@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── PUBLIC READ COLLECTIONS ──────────────────────────────────────────────
+    // Portfolio data is publicly readable.
+    // ALL writes are blocked at the database level — server only via Admin SDK.
+
+    match /projects/{projectId} {
+      allow read: if true;
+      allow write: if false;  // Admin SDK only (server-side)
+    }
+
+    match /activities/{activityId} {
+      allow read: if true;
+      allow write: if false;  // Admin SDK only (server-side)
+    }
+
+    match /profile/{docId} {
+      allow read: if true;
+      allow write: if false;  // Admin SDK only (server-side)
+    }
+
+    // ── SYSTEM COLLECTIONS (read-only for UI) ────────────────────────────────
+
+    match /syncHistory/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /systemLogs/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ── INTERNAL / SENSITIVE (no client access) ──────────────────────────────
+    // Admin credentials — never readable from client
+
+    match /internal/{docId} {
+      allow read: if false;
+      allow write: if false;
+    }
+
+    // ── CATCH-ALL: deny everything else ─────────────────────────────────────
+    match /{document=**} {
+      allow read: if false;
+      allow write: if false;
+    }
+  }
+}

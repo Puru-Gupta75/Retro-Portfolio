@@ -1,0 +1,838 @@
+@import "tailwindcss";
+
+/* ── Tailwind v4 CSS-first config ── */
+
+/* Content sources (replaces `content` array in tailwind.config.js) */
+@source "../app/**/*.{js,ts,jsx,tsx,mdx}";
+@source "../pages/**/*.{js,ts,jsx,tsx,mdx}";
+@source "../components/**/*.{js,ts,jsx,tsx,mdx}";
+@source "../src/**/*.{js,ts,jsx,tsx,mdx}";
+
+/* Design tokens (replaces theme.extend in tailwind.config.js) */
+@theme {
+  /* Colors — PHOSPHOR GHOST amber palette */
+  --color-background: #0D0D0D;
+  --color-black: #000000;
+  --color-primary: #FFB000;
+  --color-glow: #FFD580;
+  --color-surface: #131313;
+
+  /* Fonts */
+  --font-family-space: var(--font-space-grotesk), sans-serif;
+  --font-family-mono: var(--font-jetbrains-mono), monospace;
+
+  /* Animations */
+  --animate-flicker: flicker 0.15s infinite;
+  --animate-blink: blink 1s step-end infinite;
+  --animate-glitch-exit: glitch-exit 0.4s forwards linear;
+  --animate-glitch-in: glitch-in 0.3s forwards;
+
+  /* Keyframes */
+  @keyframes flicker {
+    0% {
+      opacity: 0.97;
+    }
+
+    50% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 0.98;
+    }
+  }
+
+  @keyframes blink {
+
+    0%,
+    50%,
+    100% {
+      opacity: 1;
+    }
+
+    25%,
+    75% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes glitch-exit {
+    0% {
+      transform: translateX(0) scaleY(1);
+      filter: invert(0);
+      opacity: 1;
+    }
+
+    10% {
+      transform: translateX(-10px) scaleY(1.05);
+      filter: invert(1);
+    }
+
+    20% {
+      transform: translateX(10px) scaleY(0.95);
+      filter: invert(0);
+    }
+
+    30% {
+      transform: scaleY(0.01);
+      opacity: 1;
+    }
+
+    100% {
+      transform: scaleY(0);
+      opacity: 0;
+    }
+  }
+
+  @keyframes glitch-in {
+    0% {
+      opacity: 0;
+      transform: translateY(5px) skewX(10deg);
+    }
+
+    70% {
+      opacity: 0.5;
+      transform: translateY(-2px) skewX(-5deg);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateY(0) skewX(0);
+    }
+  }
+}
+
+@layer base {
+  :root {
+    /* PHOSPHOR GHOST — AMBER ONLY. NO THEME SWITCHING. */
+    --background: #0D0D0D;
+    --black: #000000;
+    --primary: #FFB000;
+    --glow: #FFB000;
+    --surface: #131313;
+    --anim-speed: 1s;
+    --glow-strength: 3px;
+    --scanline-opacity: 0.2;
+    --flicker-intensity: 1;
+
+    /* CRT Theme Variables */
+    --crt-glow-color: rgba(255, 176, 0, 0.15);
+    --crt-scanline-color: rgba(0, 0, 0, 0.12);
+    --crt-curvature-color: rgba(255, 176, 0, 0.01);
+
+    /* ANOMALY MODE — RED THEME */
+    --anomaly-primary: #ef4444;
+    --anomaly-glow: #f87171;
+    --anomaly-dim: rgba(239, 68, 68, 0.3);
+    --anomaly-bright: #fca5a5;
+    --anomaly-dark: #dc2626;
+
+    /* Anomaly CRT Overrides */
+    --anomaly-crt-glow: rgba(239, 68, 68, 0.2);
+    --anomaly-crt-scanline: rgba(239, 68, 68, 0.08);
+    --anomaly-crt-curvature: rgba(239, 68, 68, 0.02);
+  }
+
+  [data-theme='anomaly'] {
+    --crt-glow-color: var(--anomaly-crt-glow);
+    --crt-scanline-color: var(--anomaly-crt-scanline);
+    --crt-curvature-color: var(--anomaly-crt-curvature);
+  }
+
+  [data-performance='low'] {
+    --anim-speed: 0s;
+    --glow-strength: 0px;
+    --flicker-intensity: 0;
+  }
+
+  /* Restore expected cursors per element type.
+     Setting cursor: default on * strips the text cursor from selectable content
+     and the pointer from interactive elements — both are accessibility regressions. */
+  * {
+    cursor: default;
+  }
+
+  /* Text-bearing elements should show the text cursor so users know content is selectable */
+  p,
+  span,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  li,
+  td,
+  th,
+  label,
+  blockquote,
+  pre,
+  code {
+    cursor: text;
+  }
+
+  /* Inputs and textareas keep their native text cursor */
+  input,
+  textarea {
+    cursor: text;
+  }
+
+  /* Enforce sharp corners on UI elements — intentional CRT aesthetic.
+     Scoped to avoid fighting any component that legitimately needs rounding. */
+  button,
+  input,
+  select,
+  textarea,
+  [class*="rounded"],
+  .card,
+  .panel,
+  .modal,
+  .dialog,
+  .tooltip,
+  .badge,
+  .tag {
+    border-radius: 0;
+  }
+
+  /* Scope transitions to interactive elements only — applying to * forces
+     the browser to track transition state on every DOM node, which is expensive. */
+  button,
+  a,
+  input,
+  select,
+  textarea,
+  [role="button"],
+  [role="tab"],
+  [role="menuitem"] {
+    transition:
+      background-color 0.25s ease,
+      border-color 0.25s ease,
+      color 0.25s ease,
+      text-shadow 0.25s ease,
+      opacity 0.2s ease,
+      transform 0.1s ease;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--primary);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.5s ease, color 0.5s ease;
+    /* Slightly raise base text opacity for readability */
+    opacity: 1;
+  }
+
+  /* Nudge Tailwind opacity utilities upward site-wide.
+     /10 → /20, /20 → /30, /30 → /45, /40 → /55, /60 → /70, /80 → /88
+     Preserves the dim aesthetic while improving legibility. */
+  .opacity-10  { opacity: 0.18 !important; }
+  .opacity-20  { opacity: 0.28 !important; }
+  .opacity-30  { opacity: 0.42 !important; }
+  .opacity-40  { opacity: 0.52 !important; }
+  .opacity-60  { opacity: 0.68 !important; }
+  .opacity-80  { opacity: 0.86 !important; }
+
+  /* Nudge text-primary/XX alpha values upward for readability.
+     Tailwind v4 generates these as color-mix() — override with slightly higher alpha. */
+  .text-primary\/10  { color: color-mix(in srgb, var(--color-primary) 20%, transparent) !important; }
+  .text-primary\/20  { color: color-mix(in srgb, var(--color-primary) 30%, transparent) !important; }
+  .text-primary\/30  { color: color-mix(in srgb, var(--color-primary) 42%, transparent) !important; }
+  .text-primary\/40  { color: color-mix(in srgb, var(--color-primary) 54%, transparent) !important; }
+  .text-primary\/50  { color: color-mix(in srgb, var(--color-primary) 63%, transparent) !important; }
+  .text-primary\/60  { color: color-mix(in srgb, var(--color-primary) 72%, transparent) !important; }
+  .text-primary\/80  { color: color-mix(in srgb, var(--color-primary) 88%, transparent) !important; }
+
+  /* Interactive Elements Feedback */
+  button,
+  a {
+    cursor: pointer !important;
+  }
+
+  button:hover,
+  a:hover {
+    filter: brightness(1.2);
+    transform: translateY(-1px);
+  }
+
+  button:active,
+  a:active {
+    opacity: 0.5;
+    transform: scale(0.98);
+  }
+
+  ::selection {
+    background: var(--primary);
+    color: var(--black);
+  }
+  
+  ::placeholder {
+    color: var(--primary);
+    opacity: 0.4;
+    transition: opacity 0.2s ease;
+  }
+  
+  input:focus::placeholder, 
+  textarea:focus::placeholder {
+    opacity: 0.2;
+  }
+}
+
+@layer utilities {
+  .page-transition-enter {
+    animation: glitch-in 0.3s forwards;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-in-from-bottom {
+    from {
+      transform: translateY(1rem);
+    }
+
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  /* Phosphor glow — text/element only, never background */
+  .phosphor-glow {
+    text-shadow:
+      0 0 var(--glow-strength) var(--glow),
+      0 0 calc(var(--glow-strength) * 1.5) rgba(255, 176, 0, 0.2);
+  }
+
+  /* text-glow utility — amber phosphor on text */
+  .text-glow {
+    text-shadow:
+      0 0 var(--glow-strength) var(--glow),
+      0 0 calc(var(--glow-strength) * 1.5) rgba(255, 176, 0, 0.15);
+  }
+
+  /* RED ANOMALY GLOW */
+  .anomaly-glow {
+    text-shadow:
+      0 0 var(--glow-strength) var(--anomaly-glow),
+      0 0 calc(var(--glow-strength) * 1.5) rgba(239, 68, 68, 0.2);
+  }
+
+  .anomaly-text-glow {
+    text-shadow:
+      0 0 var(--glow-strength) var(--anomaly-glow),
+      0 0 calc(var(--glow-strength) * 1.5) rgba(239, 68, 68, 0.15);
+  }
+
+  /* scrollbar-hide utility */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Custom scrollbar for terminal */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thumb-green-500\/30::-webkit-scrollbar-thumb {
+    background-color: rgba(34, 197, 94, 0.3);
+    border-radius: 0;
+  }
+
+  .scrollbar-thumb-green-500\/30::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(34, 197, 94, 0.5);
+  }
+
+  .scrollbar-track-transparent::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* RED SCROLLBAR FOR ANOMALY MODE */
+  .scrollbar-red::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-red::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .scrollbar-red::-webkit-scrollbar-thumb {
+    background: rgba(239, 68, 68, 0.4);
+    border-radius: 0;
+  }
+
+  .scrollbar-red::-webkit-scrollbar-thumb:hover {
+    background: rgba(239, 68, 68, 0.6);
+  }
+
+  /* RED SCANLINE EFFECT FOR ANOMALY MODE */
+  .anomaly-scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(to bottom,
+        rgba(239, 68, 68, 0.05) 0px,
+        rgba(239, 68, 68, 0.05) 1px,
+        transparent 2px,
+        transparent 3px);
+    pointer-events: none;
+    z-index: 25;
+    animation: scanline-drift 8s linear infinite;
+  }
+
+  @keyframes scanline-drift {
+    0% {
+      transform: translateY(0);
+    }
+
+    100% {
+      transform: translateY(4px);
+    }
+  }
+
+  /* RED VIGNETTE EFFECT FOR ANOMALY MODE */
+  .anomaly-vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center,
+        transparent 40%,
+        rgba(239, 68, 68, 0.1) 70%,
+        rgba(239, 68, 68, 0.2) 100%);
+    pointer-events: none;
+    z-index: 30;
+  }
+
+  /* RED FLASH ANIMATION */
+  @keyframes flash {
+    0% {
+      opacity: 0.8;
+    }
+
+    50% {
+      opacity: 0.4;
+    }
+
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .animate-flash {
+    animation: flash 0.3s ease-out;
+  }
+
+  /* RED PULSE ANIMATION FOR CRITICAL ELEMENTS */
+  @keyframes red-pulse {
+
+    0%,
+    100% {
+      text-shadow: 0 0 5px rgba(239, 68, 68, 0.5);
+      opacity: 1;
+    }
+
+    50% {
+      text-shadow: 0 0 20px rgba(239, 68, 68, 0.8), 0 0 30px rgba(239, 68, 68, 0.6);
+      opacity: 0.8;
+    }
+  }
+
+  .animate-red-pulse {
+    animation: red-pulse 2s ease-in-out infinite;
+  }
+
+  /* RED GLITCH EFFECT */
+  @keyframes red-glitch {
+    0% {
+      transform: translateX(0);
+    }
+
+    10% {
+      transform: translateX(-2px) skew(-1deg);
+    }
+
+    20% {
+      transform: translateX(2px) skew(1deg);
+    }
+
+    30% {
+      transform: translateX(-1px) skew(-0.5deg);
+    }
+
+    40% {
+      transform: translateX(1px) skew(0.5deg);
+    }
+
+    50% {
+      transform: translateX(0);
+    }
+
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  .animate-red-glitch {
+    animation: red-glitch 0.3s ease-in-out;
+  }
+
+  /* animate-in utilities (Tailwind v4 compat) */
+  .animate-in {
+    animation-fill-mode: both;
+    animation-duration: 0.5s;
+  }
+
+  .fade-in {
+    animation-name: fade-in;
+  }
+
+  .slide-in-from-bottom-4 {
+    animation-name: slide-in-from-bottom-4;
+  }
+
+  .slide-in-from-left-2 {
+    animation-name: slide-in-from-left-2;
+  }
+
+  .slide-in-from-right {
+    animation-name: slide-in-from-right;
+  }
+
+  .zoom-in-95 {
+    animation-name: zoom-in-95;
+  }
+
+  /* anim-duration-* — sets animation-duration for .animate-in children.
+     Named distinctly from Tailwind's duration-* (which sets transition-duration)
+     to prevent unexpected collisions on elements that have both a transition and an animation. */
+  .anim-duration-300 {
+    animation-duration: 0.3s;
+  }
+
+  .anim-duration-500 {
+    animation-duration: 0.5s;
+  }
+
+  .anim-duration-700 {
+    animation-duration: 0.7s;
+  }
+
+  .anim-duration-1000 {
+    animation-duration: 1s;
+  }
+
+  @keyframes slide-in-from-bottom-4 {
+    from {
+      transform: translateY(1rem);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-in-from-left-2 {
+    from {
+      transform: translateX(-0.5rem);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-in-from-right {
+    from {
+      transform: translateX(2rem);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes zoom-in-95 {
+    from {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .animate-glitch-exit {
+    animation: glitch-exit 0.4s forwards linear;
+  }
+
+  @media (max-width: 768px) {
+    .phosphor-glow {
+      text-shadow: 0 0 3px rgba(255, 176, 0, 0.4);
+    }
+
+    .text-glow {
+      text-shadow: 0 0 3px rgba(255, 176, 0, 0.4);
+    }
+
+    .crt-scanlines {
+      opacity: 0.04;
+    }
+
+    .crt-content {
+      padding: 4rem 1rem 2rem 1rem;
+    }
+  }
+
+  /* ── MOBILE: kill all CRT layers as a CSS safety net ── */
+  @media (max-width: 639px) {
+
+    .crt-overlay,
+    .crt-phosphor-glow,
+    .crt-curvature,
+    .crt-scanlines,
+    .crt-flicker,
+    .crt-vignette,
+    .crt-reflection {
+      display: none !important;
+    }
+
+    body {
+      text-shadow: none;
+    }
+
+    .phosphor-glow,
+    .text-glow {
+      text-shadow: none;
+    }
+
+    .crt-content {
+      padding: 1rem 1rem 5rem 1rem;
+      /* bottom padding for mobile nav bar */
+    }
+
+    .container {
+      padding: 12px;
+    }
+  }
+
+  /* ── TABLET: reduce CRT intensity ── */
+  @media (min-width: 640px) and (max-width: 1023px) {
+    .crt-phosphor-glow {
+      box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .crt-scanlines {
+      opacity: 0.15;
+    }
+
+    .crt-flicker {
+      animation-duration: 0.3s;
+    }
+
+    .crt-vignette {
+      background: radial-gradient(circle at center,
+          transparent 50%,
+          rgba(0, 0, 0, 0.3) 100%);
+    }
+
+    .phosphor-glow {
+      text-shadow:
+        0 0 4px var(--glow),
+        0 0 8px rgba(255, 176, 0, 0.2);
+    }
+
+    .text-glow {
+      text-shadow:
+        0 0 4px var(--glow),
+        0 0 8px rgba(255, 176, 0, 0.15);
+    }
+  }
+
+  .chromatic {
+    text-shadow:
+      0.5px 0 rgba(255, 0, 0, 0.5),
+      -0.5px 0 rgba(0, 0, 255, 0.5),
+      0 0 4px rgba(255, 176, 0, 0.4);
+  }
+
+  .cursor-block::after {
+    content: "█";
+    display: inline-block;
+    margin-left: 0.5ch;
+    animation: blink 1s step-end infinite;
+  }
+}
+
+/* CRT LAYERS */
+
+.crt-frame {
+  position: fixed;
+  inset: 0;
+  background: var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 1vw;
+}
+
+.crt-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--background);
+  transform: scale(0.98);
+  perspective: 1000px;
+  /* overflow must NOT be hidden here — it clips the scroll container's top
+     when scale(0.98) shrinks from center. The crt-frame handles clipping. */
+  overflow: visible;
+}
+
+/* 2. Phosphor Glow Layer — subtle dark inner shadow only, NO color tint */
+.crt-phosphor-glow {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* 3. Curvature Layer */
+.crt-curvature {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center,
+      var(--crt-curvature-color) 0%,
+      rgba(0, 0, 0, 0.4) 100%);
+  pointer-events: none;
+  z-index: 15;
+}
+
+/* 4. Scanlines */
+.crt-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(to bottom,
+      var(--crt-scanline-color) 0px,
+      var(--crt-scanline-color) 1px,
+      transparent 1px,
+      transparent 4px),
+    /* Vertical tube lines (Aperture Grille / Shadow Mask simulation) */
+    repeating-linear-gradient(to right,
+      rgba(0, 0, 0, 0.06) 0px,
+      rgba(0, 0, 0, 0.06) 1px,
+      transparent 1px,
+      transparent 3px);
+  pointer-events: none;
+  z-index: 20;
+  opacity: var(--scanline-opacity);
+}
+
+/* 5. Flicker — very subtle opacity variation only */
+.crt-flicker {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  pointer-events: none;
+  z-index: 25;
+  animation: flicker 0.15s infinite;
+  opacity: var(--flicker-intensity);
+}
+
+/* @keyframes flicker is defined once in @theme above — no duplicate needed */
+
+[data-performance="low"] .crt-flicker {
+  animation: none;
+  opacity: 0.1;
+  /* Subtle static flicker instead of animation */
+}
+
+[data-performance="low"] .crt-scanlines {
+  opacity: 0.06;
+  /* Increased from 0.04 */
+}
+
+[data-performance="high"] .crt-scanlines {
+  background: repeating-linear-gradient(to bottom,
+      var(--crt-scanline-color) 0px,
+      var(--crt-scanline-color) 1px,
+      transparent 1px,
+      transparent 4px),
+    repeating-linear-gradient(to right,
+      rgba(0, 0, 0, 0.14) 0px,
+      rgba(0, 0, 0, 0.14) 1px,
+      transparent 1px,
+      transparent 3px);
+}
+
+/* 6. Vignette */
+.crt-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center,
+      transparent 45%,
+      rgba(0, 0, 0, 0.45) 100%);
+  pointer-events: none;
+  z-index: 30;
+}
+
+/* 7. Glass Reflection */
+.crt-reflection {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0) 50%,
+      rgba(255, 255, 255, 0.03) 100%);
+  pointer-events: none;
+  z-index: 35;
+}
+
+.crt-content {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  padding: 3rem 2rem;
+  overflow-y: auto;
+  overflow-anchor: none;
+  /* prevent browser scroll-anchor from fighting route resets */
+  scrollbar-width: none;
+}
+
+/* Global Scrollbar Hide — Functional but invisible */
+::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
