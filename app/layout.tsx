@@ -19,7 +19,7 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Puru Gupta",
+  title: "PURU GUPTA",
   description: "High-fidelity 1980s CRT hardware simulation portfolio.",
 };
 
