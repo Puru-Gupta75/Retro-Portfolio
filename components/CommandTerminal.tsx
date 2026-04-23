@@ -10,7 +10,7 @@ import PongGame from './games/PongGame';
 import RunnerGame from './games/RunnerGame';
 import MemoryGame from './games/MemoryGame';
 import { saveScore, getLeaderboard, formatLeaderboard } from '@/lib/leaderboard';
-import LeaderboardDisplay from './LeaderboardDisplay';
+
 import { useSync } from '@/context/SyncContext';
 import { commandEngine } from '@/lib/command/engine';
 
@@ -40,7 +40,7 @@ export const CommandTerminal: React.FC = () => {
   const [mode, setMode] = useState<InputMode>({ kind: 'command' });
   const [currentGame, setCurrentGame] = useState<string | null>(null);
   const [currentHandle, setCurrentHandle] = useState<string>('ANON');
-  const [showLeaderboard, setShowLeaderboard] = useState<string | null>(null);
+
 
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -163,7 +163,9 @@ export const CommandTerminal: React.FC = () => {
       );
       setMode({ kind: 'await_handle', game: result.data });
     } else if (result.action === 'leaderboard' && result.data) {
-      setShowLeaderboard(result.data);
+      push(`[DB] FETCHING_SCORES — ${result.data.toUpperCase()}...`);
+      const board = await getLeaderboard(result.data);
+      push(...formatLeaderboard(result.data, board).split('\n'));
     } else if (result.action === 'terminal_reset') {
       triggerSync();
     }
@@ -245,12 +247,6 @@ export const CommandTerminal: React.FC = () => {
   // ── Terminal view ────────────────────────────────────────────────────────
   return (
     <div className="space-y-3">
-      {showLeaderboard && (
-        <LeaderboardDisplay
-          game={showLeaderboard}
-          onClose={() => setShowLeaderboard(null)}
-        />
-      )}
       <h3 className="text-[10px] font-mono tracking-[0.3em] opacity-40 uppercase">
         &gt; COMMAND_TERMINAL
       </h3>

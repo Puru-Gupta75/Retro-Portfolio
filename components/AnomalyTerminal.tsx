@@ -9,8 +9,7 @@ import SnakeGame from './games/SnakeGame';
 import PongGame from './games/PongGame';
 import RunnerGame from './games/RunnerGame';
 import MemoryGame from './games/MemoryGame';
-import LeaderboardDisplay from './LeaderboardDisplay';
-import { saveScore } from '@/lib/leaderboard';
+import { saveScore, getLeaderboard, formatLeaderboard } from '@/lib/leaderboard';
 import { commandEngine } from '@/lib/command/engine';
 
 type GameType = 'snake' | 'pong' | 'runner' | 'memory' | null;
@@ -45,7 +44,7 @@ export default function AnomalyTerminal() {
   const [isRecovering, setIsRecovering] = useState(false);
   const [currentGame, setCurrentGame] = useState<GameType>(null);
   const [awaitingNicknameForGame, setAwaitingNicknameForGame] = useState<GameType>(null);
-  const [showLeaderboard, setShowLeaderboard] = useState<string | null>(null);
+
   const [showGlitch, setShowGlitch] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const outputRef = useRef<HTMLDivElement>(null);
@@ -156,7 +155,9 @@ export default function AnomalyTerminal() {
       setOutput(prev => [...prev, `> TARGET GAME: ${result.data.toUpperCase()}`, '> ENTER HANDLE FOR LEADERBOARD (max 20 chars):']);
       setAwaitingNicknameForGame(result.data as GameType);
     } else if (result.action === 'leaderboard' && result.data) {
-      setShowLeaderboard(result.data);
+      setOutput(prev => [...prev, `[DB] FETCHING_SCORES — ${result.data.toUpperCase()}...`]);
+      const board = await getLeaderboard(result.data);
+      setOutput(prev => [...prev, ...formatLeaderboard(result.data, board).split('\n')]);
     } else if (result.action === 'terminal_reset') {
       // Specialized FIX logic
       setIsRecovering(true);
@@ -239,12 +240,6 @@ export default function AnomalyTerminal() {
   // Terminal view
   return (
     <div className="w-full max-w-4xl mx-auto relative flex-1 flex flex-col min-h-0">
-      {showLeaderboard && (
-        <LeaderboardDisplay
-          game={showLeaderboard}
-          onClose={() => setShowLeaderboard(null)}
-        />
-      )}
       {/* Glitch overlay */}
       {showGlitch && (
         <div className="absolute inset-0 pointer-events-none z-10 flex items-center justify-center">
