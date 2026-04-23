@@ -1,6 +1,6 @@
 export type AccessLevel = 'public' | 'admin';
 
-export type OutputType = 'INFO' | 'ACTION' | 'ERROR' | 'SUCCESS' | 'SYSTEM';
+export type OutputType = 'INFO' | 'ACTION' | 'ERROR' | 'SUCCESS' | 'SYSTEM' | 'WARNING';
 
 export interface CommandOutput {
   text: string;
