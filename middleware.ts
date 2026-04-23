@@ -7,20 +7,31 @@ const SECRET = new TextEncoder().encode(
 const COOKIE_NAME = 'amber_admin_token';
 
 export async function middleware(req: NextRequest) {
-  const token = req.cookies.get(COOKIE_NAME)?.value;
+  const { pathname } = req.nextUrl;
 
-  if (!token) {
-    return NextResponse.redirect(new URL('/', req.url));
+  // Protect admin API routes — require valid JWT
+  if (pathname.startsWith('/api/admin/')) {
+    // Allow login and logout without a token
+    if (pathname === '/api/admin/login' || pathname === '/api/admin/logout') {
+      return NextResponse.next();
+    }
+
+    const token = req.cookies.get(COOKIE_NAME)?.value;
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    try {
+      await jwtVerify(token, SECRET);
+      return NextResponse.next();
+    } catch {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
   }
 
-  try {
-    await jwtVerify(token, SECRET);
-    return NextResponse.next();
-  } catch {
-    return NextResponse.redirect(new URL('/', req.url));
-  }
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/admin'],
+  matcher: ['/api/admin/:path*'],
 };
