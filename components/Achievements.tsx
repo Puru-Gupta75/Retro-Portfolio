@@ -17,7 +17,7 @@ export const Achievements: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h3 className="text-sm font-mono tracking-[0.3em] opacity-40 uppercase border-b border-primary/10 pb-4">
+      <h3 className="text-sm font-mono tracking-[0.3em] opacity-40 uppercase border-b border-primary/10 pb-2 whitespace-nowrap">
         &gt; ACHIEVEMENTS_&_LEADERSHIP
       </h3>
 
