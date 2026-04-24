@@ -22,6 +22,15 @@ export const SkillTree: React.FC = () => {
   }
 
   const skills = config.skills;
+  
+  // Define the order: frontend, backend, data, tools
+  const categoryOrder = ['frontend', 'backend', 'data', 'tools'];
+  const orderedSkills = categoryOrder
+    .filter((category) => category in skills)
+    .reduce((acc, category) => {
+      acc[category] = skills[category];
+      return acc;
+    }, {} as Record<string, string[]>);
 
   return (
     <div className="space-y-8">
@@ -36,7 +45,7 @@ export const SkillTree: React.FC = () => {
       </header>
 
       <div className="font-mono text-sm space-y-6">
-        {Object.entries(skills).map(([category, skillList]) => {
+        {Object.entries(orderedSkills).map(([category, skillList]) => {
           const isExpanded = expandedNodes.includes(category);
           return (
             <div key={category} className="space-y-2">
