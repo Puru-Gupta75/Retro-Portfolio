@@ -5,6 +5,7 @@ import { AppShell } from "@/components/AppShell";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SystemProvider } from "@/context/SystemContext";
 import { SyncProvider } from "@/context/SyncContext";
+import { Analytics } from "@vercel/analytics/next";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -40,6 +41,7 @@ export default function RootLayout({
             </SyncProvider>
           </SystemProvider>
         </ErrorBoundary>
+        <Analytics />
       </body>
     </html>
   );
