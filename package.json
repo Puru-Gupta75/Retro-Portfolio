@@ -10,11 +10,13 @@
   },
   "dependencies": {
     "@octokit/rest": "^22.0.1",
+    "@vercel/analytics": "^2.0.1",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/nodemailer": "^8.0.0",
     "@types/three": "^0.184.0",
+    "@vercel/analytics": "^2.0.1",
     "bcryptjs": "^3.0.3",
     "firebase-admin": "^13.8.0",
     "framer-motion": "^12.38.0",
