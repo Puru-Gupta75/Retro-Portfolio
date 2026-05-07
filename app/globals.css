@@ -112,8 +112,8 @@
     --surface: #131313;
     --anim-speed: 1s;
     --glow-strength: 3px;
-    --scanline-opacity: 0.2;
-    --flicker-intensity: 1;
+    --scanline-opacity: 0.12;
+    --flicker-intensity: 0.6;
 
     /* CRT Theme Variables */
     --crt-glow-color: rgba(255, 176, 0, 0.15);
@@ -699,7 +699,8 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  padding: 1vw;
+  /* No padding — true fullscreen */
+  padding: 0;
 }
 
 .crt-screen {
@@ -707,30 +708,31 @@
   width: 100%;
   height: 100%;
   background: var(--background);
-  transform: scale(0.98);
+  /* No scale — fills the full viewport */
   perspective: 1000px;
-  /* overflow must NOT be hidden here — it clips the scroll container's top
-     when scale(0.98) shrinks from center. The crt-frame handles clipping. */
   overflow: visible;
+  /* Curved screen shape via border-radius + clip */
+  border-radius: 2% / 3%;
+  clip-path: ellipse(99.5% 99% at 50% 50%);
 }
 
-/* 2. Phosphor Glow Layer — subtle dark inner shadow only, NO color tint */
+/* 2. Phosphor Glow Layer — lighter inner shadow so text stays readable */
 .crt-phosphor-glow {
   position: absolute;
   inset: 0;
   background: transparent;
-  box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.6);
+  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.35);
   pointer-events: none;
   z-index: 10;
 }
 
-/* 3. Curvature Layer */
+/* 3. Curvature Layer — very light edge darkening only */
 .crt-curvature {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center,
-      var(--crt-curvature-color) 0%,
-      rgba(0, 0, 0, 0.4) 100%);
+  background: radial-gradient(ellipse 90% 85% at 50% 50%,
+      transparent 60%,
+      rgba(0, 0, 0, 0.18) 100%);
   pointer-events: none;
   z-index: 15;
 }
@@ -746,8 +748,8 @@
       transparent 4px),
     /* Vertical tube lines (Aperture Grille / Shadow Mask simulation) */
     repeating-linear-gradient(to right,
-      rgba(0, 0, 0, 0.06) 0px,
-      rgba(0, 0, 0, 0.06) 1px,
+      rgba(0, 0, 0, 0.04) 0px,
+      rgba(0, 0, 0, 0.04) 1px,
       transparent 1px,
       transparent 3px);
   pointer-events: none;
@@ -771,12 +773,10 @@
 [data-performance="low"] .crt-flicker {
   animation: none;
   opacity: 0.1;
-  /* Subtle static flicker instead of animation */
 }
 
 [data-performance="low"] .crt-scanlines {
   opacity: 0.06;
-  /* Increased from 0.04 */
 }
 
 [data-performance="high"] .crt-scanlines {
@@ -786,19 +786,19 @@
       transparent 1px,
       transparent 4px),
     repeating-linear-gradient(to right,
-      rgba(0, 0, 0, 0.14) 0px,
-      rgba(0, 0, 0, 0.14) 1px,
+      rgba(0, 0, 0, 0.08) 0px,
+      rgba(0, 0, 0, 0.08) 1px,
       transparent 1px,
       transparent 3px);
 }
 
-/* 6. Vignette */
+/* 6. Vignette — softer, only at the very edges */
 .crt-vignette {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center,
-      transparent 45%,
-      rgba(0, 0, 0, 0.45) 100%);
+  background: radial-gradient(ellipse 90% 85% at 50% 50%,
+      transparent 55%,
+      rgba(0, 0, 0, 0.22) 100%);
   pointer-events: none;
   z-index: 30;
 }
@@ -808,9 +808,9 @@
   position: absolute;
   inset: 0;
   background: linear-gradient(135deg,
-      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0.025) 0%,
       rgba(255, 255, 255, 0) 50%,
-      rgba(255, 255, 255, 0.03) 100%);
+      rgba(255, 255, 255, 0.025) 100%);
   pointer-events: none;
   z-index: 35;
 }

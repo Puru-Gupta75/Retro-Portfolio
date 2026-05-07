@@ -48,9 +48,22 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) =
         <span className="text-[10px] font-mono opacity-30 group-hover:text-black/40 uppercase">
           CAT: {project.category || 'N/A'}
         </span>
-        <span className="text-[9px] font-mono text-primary group-hover:text-black group-hover:font-bold">
-          [ ACCESS_SYSTEM ]
-        </span>
+        <div className="flex items-center gap-3">
+          {project.showWebsiteLink === true && project.websiteUrl && (
+            <a
+              href={project.websiteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="text-[9px] font-mono border border-primary/40 text-primary group-hover:border-black/40 group-hover:text-black px-2 py-0.5 hover:bg-primary/10 group-hover:hover:bg-black/10 transition-colors uppercase"
+            >
+              ↗ LIVE
+            </a>
+          )}
+          <span className="text-[9px] font-mono text-primary group-hover:text-black group-hover:font-bold">
+            [ ACCESS_SYSTEM ]
+          </span>
+        </div>
       </div>
     </button>
   );

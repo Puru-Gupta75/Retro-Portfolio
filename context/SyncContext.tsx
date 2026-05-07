@@ -48,6 +48,9 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
     return systemStore.subscribe(update);
   }, []);
 
+  const [logs, setLogs] = useState<SyncLog[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
   // Load last handshake from Firestore on mount — only when admin is authenticated
   useEffect(() => {
     if (!systemStore.getState().adminAuthenticated) return;
@@ -64,8 +67,6 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
       })
       .catch(() => {}); // silently fail — not critical
   }, []);
-  const [logs, setLogs] = useState<SyncLog[]>([]);
-  const [error, setError] = useState<string | null>(null);
 
   const refreshHandshake = useCallback(async () => {
     if (!systemStore.getState().adminAuthenticated) return;

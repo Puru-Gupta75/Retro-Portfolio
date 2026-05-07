@@ -104,6 +104,29 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onClose }
 
           {/* RIGHT COL: Tech Stack & Actions */}
           <div className="space-y-12">
+            <section className="space-y-4">
+              {project.showWebsiteLink === true && project.websiteUrl && (
+                <a
+                  href={project.websiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full border border-primary/40 text-primary py-3 font-bold uppercase text-center transition-all hover:bg-primary/10 hover:border-primary"
+                >
+                  LIVE_DEMO
+                </a>
+              )}
+              {project.showRepoLink === true && (project.repoUrl || project.url) && (
+                <a
+                  href={project.repoUrl || project.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full bg-primary text-black py-3 font-bold uppercase text-center transition-all hover:bg-glow phosphor-glow"
+                >
+                  VIEW_SOURCE_CODE
+                </a>
+              )}
+            </section>
+
             {project.techStack && (
               <section className="space-y-6">
                 <h3 className="text-xs font-mono opacity-30 uppercase tracking-[0.3em]">
@@ -127,29 +150,6 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onClose }
                 })}
               </section>
             )}
-
-            <section className="space-y-4 pt-8">
-              {project.showRepoLink === true && (project.repoUrl || project.url) && (
-                <a
-                  href={project.repoUrl || project.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full bg-primary text-black py-3 font-bold uppercase text-center transition-all hover:bg-glow phosphor-glow"
-                >
-                  VIEW_SOURCE_CODE
-                </a>
-              )}
-              {project.showWebsiteLink === true && project.websiteUrl && (
-                <a
-                  href={project.websiteUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full border border-primary/40 text-primary py-3 font-bold uppercase text-center transition-all hover:bg-primary/10 hover:border-primary"
-                >
-                  LIVE_DEMO
-                </a>
-              )}
-            </section>
           </div>
 
         </div>

@@ -30,6 +30,12 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
 
   const router = useRouter();
 
+  // Uptime ticker — runs globally, always mounted
+  useEffect(() => {
+    const interval = setInterval(() => systemStore.tickUptime(), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Subscribe to system mode changes
   useEffect(() => {
     return systemStore.subscribe(() => {

@@ -94,14 +94,7 @@ export const CommandPalette: React.FC = () => {
 
   return (
     <>
-      {!isOpen ? (
-        <button 
-          onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-110 text-[9px] font-mono text-primary/40 hover:text-primary transition-colors uppercase tracking-widest bg-black/40 px-3 py-1 border border-primary/10 rounded-sm"
-        >
-          [ EXECUTE CMD: CTRL+K ]
-        </button>
-      ) : (
+      {!isOpen ? null : (
         <div
           role="dialog"
           aria-modal="true"

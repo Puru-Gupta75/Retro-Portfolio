@@ -31,9 +31,9 @@ export const CRTWebGLWrapper: React.FC<{ children: React.ReactNode }> = ({ child
 
   const isLowPerf = actualPerformance === 'low';
   
-  // Balanced "middle" settings for high performance
-  const distortionScale = isLowPerf ? 0.5 : (device === 'tablet' ? 1.5 : 1.8);
-  const abberationOffset = isLowPerf ? 0.6 : (device === 'tablet' ? 0.8 : 1.0);
+  // Strong lens distortion for a pronounced CRT look
+  const distortionScale = isLowPerf ? 1.0 : (device === 'tablet' ? 2.2 : 3.0);
+  const abberationOffset = isLowPerf ? 0.8 : (device === 'tablet' ? 1.2 : 1.6);
   
   const showCRT = crtEnabled;
 

@@ -103,7 +103,7 @@ export default function ArchivePage() {
       </header>
 
       {/* REPO CONTROLS */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-primary/10 pb-6">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6">
         <FilterBar
           activeFilter={activeFilter}
           onFilterChange={setActiveFilter}

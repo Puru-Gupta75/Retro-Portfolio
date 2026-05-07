@@ -37,7 +37,7 @@ export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [performanceMode, setPerformanceMode] = useState<PerformanceMode>('auto');
   const [actualPerformance, setActualPerformance] = useState<'high' | 'low'>('high');
   const [audioEnabled, setAudioEnabled] = useState(false);
-  const [crtEnabled, setCrtEnabled] = useState(false);
+  const [crtEnabled, setCrtEnabled] = useState(true);
   const [isBooting, setIsBooting] = useState(false);
 
   const isInitialized = useRef(false);
@@ -50,11 +50,13 @@ export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const p = JSON.parse(saved);
         if (p.performanceMode) setPerformanceMode(p.performanceMode);
         if (p.audioEnabled !== undefined) setAudioEnabled(p.audioEnabled);
+        // Only restore crtEnabled if explicitly saved; default is true
         if (p.crtEnabled !== undefined) setCrtEnabled(p.crtEnabled);
       } catch (e) {
         console.error('Failed to parse system settings', e);
       }
     }
+    // First visit: crtEnabled stays true (the useState default)
     isInitialized.current = true;
   }, []);
 
@@ -100,7 +102,7 @@ export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const resetSystem = useCallback(() => {
     setPerformanceMode('auto');
     setAudioEnabled(false);
-    setCrtEnabled(false);
+    setCrtEnabled(true);
     localStorage.removeItem(STORAGE_KEY);
   }, []);
 

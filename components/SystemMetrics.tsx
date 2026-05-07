@@ -48,12 +48,6 @@ export const SystemMetrics: React.FC = () => {
     return () => cancelAnimationFrame(raf);
   }, []);
 
-  // Uptime counter — single source of truth, drives the store
-  useEffect(() => {
-    const t = setInterval(() => systemStore.tickUptime(), 1000);
-    return () => clearInterval(t);
-  }, []);
-
   // Read uptime from store
   const [uptime, setUptime] = useState(() => systemStore.getState().uptime);
   useEffect(() => {

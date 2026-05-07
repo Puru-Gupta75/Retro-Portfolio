@@ -27,7 +27,7 @@ function uid() {
 }
 
 export const CommandTerminal: React.FC = () => {
-  const { setPerformanceMode, setIsBooting } = useSystem();
+  useSystem(); // Ensures component re-renders on system context changes
   const router = useRouter();
   const { triggerSync, status, logs } = useSync();
   const [input, setInput] = useState('');

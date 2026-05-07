@@ -1,39 +1,88 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useSiteConfig } from '@/lib/useSiteConfig';
 import { sounds } from '@/lib/soundEngine';
+import type { SkillsData } from '@/lib/useSiteConfig';
 
-// Fallback logs shown while Firestore data loads
-const FALLBACK_LOGS = [
-  '[OK] CORE_SYNC_STARTED',
-  '[LOAD] NET_SHADERS... OK',
-  '[INIT] HUD_OVERLAY',
-  '[BUSY] SCANNING_PERIPHERALS',
-  '[OK] CRT_EMULATION_STABLE',
-  '[OK] GLITCH_KERNEL_ACTIVE',
-  '[LOAD] IDENTITY_MODULE... OK',
-  '[INIT] UPLINK_TUNNEL',
-  '[OK] DATA_VINE_CONNECTED',
-  '[BUSY] CALCULATING_PHOSPHOR_DECAY',
-  '[OK] AMBER_SPECTRUM_SYNCED',
-  '[LOAD] POST_PROCESS_BUFFERS... OK',
-  '[INIT] INTERFACE_HANDSHAKE',
-  '[OK] SYSTEM_INTEGRITY_VERIFIED',
-  '[BUSY] MONITORING_THERMALS',
-  '[OK] FAN_SPEED_OPTIMIZED',
-  '[LOAD] ANALYTICS_ENGINE... OK',
-  '[INIT] COMMAND_PALETTE',
-  '[OK] SESSION_LOGGING_ACTIVE',
-  '[OK] ROOT_ACCESS_GRANTED',
+// Shown only while data is still loading
+const BOOT_LOGS = [
+  '[INIT] SYSTEM_BOOT',
+  '[LOAD] FETCHING_MODULES... OK',
+  '[BUSY] LOADING_DATA',
 ];
 
 type LogEntry = { text: string; timestamp: string };
 
+/** Build meaningful log lines from real projects + skills data */
+function buildLogsFromConfig(
+  projects: Array<{ name?: string; displayName?: string; description?: string; customDesc?: string }>,
+  skills: SkillsData | null,
+): string[] {
+  const logs: string[] = [];
+
+  // ── Projects ──────────────────────────────────────────────────────────────
+  for (const p of projects) {
+    const name = (p.displayName || p.name || '').toUpperCase().replace(/\s+/g, '_');
+    const desc = (p.customDesc || p.description || '').trim();
+    if (!name) continue;
+    logs.push(`[PROJECT] ${name}`);
+    if (desc) logs.push(`[INFO] ${desc.length > 60 ? desc.slice(0, 57) + '...' : desc}`);
+  }
+
+  // ── Skills (in category order) ────────────────────────────────────────────
+  if (skills) {
+    const categoryOrder = ['frontend', 'backend', 'data', 'tools'];
+    const allCategories = [
+      ...categoryOrder,
+      ...Object.keys(skills).filter((k) => !categoryOrder.includes(k)),
+    ];
+
+    for (const cat of allCategories) {
+      const raw = skills[cat];
+      // Guard: Firestore may store non-array values on the same document
+      const items: string[] = Array.isArray(raw) ? raw : [];
+      if (items.length === 0) continue;
+      logs.push(`[SKILL:${cat.toUpperCase()}] ${items.join(' · ')}`);
+    }
+  }
+
+  return logs;
+}
+
 export const ActivityFeed: React.FC = () => {
   const { config } = useSiteConfig();
-  const activityLogs: string[] =
-    (config?.uplink as any)?.activityLogs ?? FALLBACK_LOGS;
+  const [projects, setProjects] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('/api/projects')
+      .then((r) => r.json())
+      .then((data: any[]) => {
+        if (!Array.isArray(data)) return;
+        const visible = data
+          .filter((p) => p.isVisible !== false && !p.isHidden)
+          .sort(
+            (a, b) =>
+              (a.sortOrder ?? 0) - (b.sortOrder ?? 0) ||
+              (a.displayName || a.name || '').localeCompare(b.displayName || b.name || ''),
+          );
+        setProjects(visible);
+      })
+      .catch(() => {/* silently ignore — boot logs will show */});
+  }, []);
+
+  const activityLogs: string[] = useMemo(() => {
+    // Admin-configured override takes priority
+    const override = (config?.uplink as any)?.activityLogs as string[] | undefined;
+    if (Array.isArray(override) && override.length > 0) return override;
+
+    // Build from real data once at least one source is available
+    if (projects.length > 0 || config?.skills) {
+      return buildLogsFromConfig(projects, config?.skills ?? null);
+    }
+
+    return BOOT_LOGS;
+  }, [projects, config]);
 
   const [visibleLogs, setVisibleLogs] = useState<LogEntry[]>([]);
   const logIndexRef = useRef(0);
@@ -97,7 +146,19 @@ export const ActivityFeed: React.FC = () => {
             className="flex gap-4 animate-in fade-in slide-in-from-left-2 anim-duration-300"
           >
             <span className="opacity-20 shrink-0">{entry.timestamp}</span>
-            <span className={entry.text.includes('[OK]') ? 'text-primary' : 'text-primary/60'}>
+            <span
+              className={
+                entry.text.startsWith('[PROJECT]')
+                  ? 'text-primary font-semibold'
+                  : entry.text.startsWith('[SKILL:')
+                  ? 'text-primary/80'
+                  : entry.text.startsWith('[INFO]')
+                  ? 'text-primary/50 italic'
+                  : entry.text.includes('[OK]')
+                  ? 'text-primary'
+                  : 'text-primary/60'
+              }
+            >
               {entry.text}
             </span>
           </div>
